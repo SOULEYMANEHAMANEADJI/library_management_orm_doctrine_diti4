@@ -1,0 +1,108 @@
+// Création d'un nouvel auteur
+$auteur = new Auteur('Ibrahima SY');
+
+// Création de plusieurs livres associés à cet auteur
+$livre1 = new Livre();
+$livre1->setTitre('Think Python');
+$livre1->setAuteur($auteur);
+
+$livre2 = new Livre();
+$livre2->setTitre('Fluent Python');
+$livre2->setAuteur($auteur);
+
+// Persistance des entités
+$entityManager->persist($auteur);
+$entityManager->persist($livre1);
+$entityManager->persist($livre2);
+
+// Exécution des opérations en base de données
+$entityManager->flush();
+
+echo "Nouvel auteur et livres associés créés avec succès.\n";
+
+
+<?php
+// read.php
+
+require_once "../bootstrap.php";
+use App\Entity\Auteur;
+
+// Récupérer l'ID de l'auteur spécifique
+$auteurId = 1;
+
+// Utilisez l'EntityManager pour charger l'auteur à partir de la base de données en fonction de son ID
+$auteur = $entityManager->find(Auteur::class, $auteurId);
+
+if ($auteur === null) {
+    echo "Auteur non trouvé.\n";
+    exit(1);
+}
+
+// Accédez à la liste de ses livres associés
+$livres = $auteur->getLivres();
+
+echo "Auteur: " . $auteur->getNom() . "\n";
+echo "Livres associés:\n";
+
+foreach ($livres as $livre) {
+    echo "- " . $livre->getTitre() . "\n";
+}
+?>
+
+<?php
+// update.php
+
+require_once "../bootstrap.php";
+use App\Entity\Livre;
+
+// Récupérer l'ID du livre
+$livreId = 1;
+
+// Utilisez l'EntityManager pour charger le livre à partir de la base de données en fonction de son ID
+$livre = $entityManager->find(Livre::class, $livreId);
+
+if ($livre === null) {
+    echo "Livre non trouvé.\n";
+    exit(1);
+}
+
+// Modifiez le titre du livre
+$nouveauTitre = "Nouveau titre du livre";
+$livre->setTitre($nouveauTitre);
+
+// Utilisez l'EntityManager pour mettre à jour le livre dans la base de données
+$entityManager->flush();
+
+echo "Titre du livre mis à jour avec succès.\n";
+?>
+<?php
+// delete.php
+
+require_once "../bootstrap.php";
+use App\Entity\Auteur;
+
+// Récupérer l'ID de l'auteur
+$auteurId = 1;
+
+// Utilisez l'EntityManager pour charger l'auteur à partir de la base de données en fonction de son ID
+$auteur = $entityManager->find(Auteur::class, $auteurId);
+
+if ($auteur === null) {
+    echo "Auteur non trouvé.\n";
+    exit(1);
+}
+
+// Supprimez tous les livres associés à cet auteur
+$livres = $auteur->getLivres();
+foreach ($livres as $livre) {
+    $entityManager->remove($livre);
+}
+
+// Supprimez l'auteur de la base de données
+$entityManager->remove($auteur);
+
+// Exécutez les opérations en base de données
+$entityManager->flush();
+
+echo "Auteur et tous ses livres associés ont été supprimés avec succès.\n";
+?>
